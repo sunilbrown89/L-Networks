@@ -38,4 +38,49 @@ contractRouter.post("/contractors", async (req, res) => {
     }
   });
 
+
+
+  contractRouter.get("/lender/:n", async (req, res) => {
+    const n = parseInt(req.params.n);
+    try {
+      const lenderData = await ContractModel.aggregate([
+        {
+          $group: {
+            _id: "$LenderId",
+          
+            count: { $sum: 1 },
+            totalAmount: { $sum: "$Principle" },
+           
+            
+          
+          },
+        },
+        {
+          $match: { count: { $gte: n } },
+          
+        },
+        { $sort: { count: 1 } },
+      ]);
+  
+      const lenders = await UserModel.find({
+        _id: { $in: lenderData.map((item) => item._id) },
+      });
+  
+      const result = lenders.map((lender) => {
+        const data = lenderData.find((item) => item._id.equals(lender._id));
+        return {
+          LenderName: lender.Name,
+          Total: data.totalAmount,
+          totalBorrowerSize:data.count,
+          
+        };
+      });
+     
+      res.json(result);
+    } catch (error) {
+      console.log(error,"error")
+    }
+     
+  })
+  
 module.exports = contractRouter;
