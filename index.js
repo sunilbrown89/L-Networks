@@ -16,7 +16,9 @@ app.use("/user", userRouter)
 app.use("/contractor", contractRouter)
 
 
-
+app.get('/',(req,res)=>{
+  res.send(`<h1 style="color:brown;">Welcome to Laail Network</h1>`);
+})
 app.listen(8000, async() => {
   try{
       await connection;   
